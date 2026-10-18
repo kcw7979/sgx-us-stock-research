@@ -9,7 +9,7 @@ description = "Cloud-first SGX and US equity research; no trade execution"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "pandas>=2.2,<3", "numpy>=2,<3", "openpyxl>=3.1,<4",
-  "streamlit>=1.41,<2", "yfinance>=0.2.54,<1",
+  "streamlit>=1.49,<2", "yfinance>=0.2.54,<1",
   "pandas-market-calendars>=5,<6", "pyarrow>=19,<24",
 ]
 

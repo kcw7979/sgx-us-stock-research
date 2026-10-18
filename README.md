@@ -102,7 +102,7 @@ provider's currency metadata and preserves these columns:
 | `retrieved_at` | Actual adapter retrieval time in UTC |
 | `session_close` | Calendar-derived session close in UTC |
 
-`pandas-market-calendars` supplies **SGX** and **NASDAQ** schedules, including
+`pandas-market-calendars` supplies **SGX (`XSES`)** and **NASDAQ** schedules, including
 weekends, known holidays, early closes and daylight-saving transitions. Only
 sessions whose scheduled close is at least two hours in the past are requested.
 This buffer is conservative, not a promise that the vendor has finalized data.
