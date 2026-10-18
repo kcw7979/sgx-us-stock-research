@@ -20,7 +20,7 @@ def validate_bars(frame: pd.DataFrame, equity: Equity, expected: pd.DataFrame,
         dates = pd.to_datetime(result.date, errors="raise")
         if dates.dt.tz is not None or not dates.eq(dates.dt.normalize()).all():
             raise ValueError("Session dates must be timezone-free calendar dates")
-        result["date"] = dates
+        result["date"] = dates.astype("datetime64[ns]")
         if dates.duplicated().any() or not dates.is_monotonic_increasing:
             raise ValueError("Duplicate or unsorted session dates")
         if list(dates) != list(pd.DatetimeIndex(expected.index).tz_localize(None)):
@@ -46,7 +46,7 @@ def validate_bars(frame: pd.DataFrame, equity: Equity, expected: pd.DataFrame,
                 raise ValueError("Missing timestamps")
             if any(pd.Timestamp(value).tzinfo is None for value in result[key]):
                 raise ValueError("Provenance timestamps must include timezone")
-            result[key] = pd.to_datetime(result[key], utc=True)
+            result[key] = pd.to_datetime(result[key], utc=True).astype("datetime64[ns, UTC]")
         if (result.source_timestamp > result.retrieved_at).any() or (
             result.retrieved_at > now
         ).any():
@@ -56,7 +56,9 @@ def validate_bars(frame: pd.DataFrame, equity: Equity, expected: pd.DataFrame,
         closes = pd.Series(expected.market_close.to_numpy(), index=result.index)
         if (result.retrieved_at < closes).any():
             raise ValueError("Bars were retrieved before the session completed")
-        result["session_close"] = expected.market_close.to_numpy()
+        result["session_close"] = pd.to_datetime(
+            expected.market_close.to_numpy(), utc=True
+        ).astype("datetime64[ns, UTC]")
         return result
     except (ValueError, TypeError, KeyError, AttributeError) as exc:
         raise DataError(f"{equity.symbol}: validation failed: {exc}") from exc
