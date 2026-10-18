@@ -1,0 +1,42 @@
+name: Daily market data refresh
+on:
+  schedule:
+    # 02:30 UTC Tue–Sat, after US close + publication buffer year round.
+    - cron: '30 2 * * 2-6'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: market-data-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - name: Fetch real data and export workbook
+        run: equity-refresh --data-dir data --excel exports/equity-research.xlsx
+      - name: Retain validated data privately according to repository access
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: equity-research-${{ github.run_id }}
+          path: |
+            data/
+            exports/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Retain failure diagnostics without prices
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-status-${{ github.run_id }}
+          path: data/status.json
+          retention-days: 7
+          if-no-files-found: ignore
