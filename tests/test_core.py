@@ -82,8 +82,8 @@ class PortfolioTests(unittest.TestCase):
         self.assertEqual(position_size(100, .01, 50, 45, 1, 1, 100)["shares"], 0)
 
     def test_reject_invalid_sizing_inputs(self):
-        defaults = dict(capital=1000, risk_fraction=.01, entry=10, stop=9,
-                        fx_to_base=1, allocation_fraction=.5, lot_size=1)
+        defaults = {"capital": 1000, "risk_fraction": .01, "entry": 10, "stop": 9,
+                    "fx_to_base": 1, "allocation_fraction": .5, "lot_size": 1}
         for change in [{"entry": 0}, {"stop": 10}, {"stop": 11}, {"stop": -1},
                        {"fx_to_base": 0}, {"capital": np.inf}, {"risk_fraction": np.nan},
                        {"risk_fraction": 0}, {"allocation_fraction": 1.1}, {"lot_size": 1.5},

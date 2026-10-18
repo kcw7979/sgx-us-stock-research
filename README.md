@@ -8,10 +8,11 @@ Excel exports and scheduled GitHub Actions. No brokerage integration or trading.
 ## Cloud setup — no local PC
 
 1. Open this repository in **GitHub Codespaces** (Code → Codespaces → Create).
+   The included devcontainer selects Python 3.12 and installs development dependencies.
 2. In its browser terminal run:
 
    ```bash
-   python --version  # Must be 3.12.x; select/install Python 3.12 in the cloud if needed.
+   python --version  # The Codespaces devcontainer provides Python 3.12.x.
    python -m venv .venv
    source .venv/bin/activate
    python -m pip install -e '.[dev]'

@@ -135,21 +135,25 @@ def test_snapshot_roundtrip_and_staleness(tmp_path):
 
 def test_failed_refresh_blocks_prior_snapshot(tmp_path):
     refresh(MockProvider(), tmp_path, NOW)
-    with patch.object(MockProvider, "daily", side_effect=DataError("Provider unavailable")):
-        with pytest.raises(DataError, match="Provider unavailable"):
-            refresh(MockProvider(), tmp_path, NOW)
+    with (
+        patch.object(MockProvider, "daily", side_effect=DataError("Provider unavailable")),
+        pytest.raises(DataError, match="Provider unavailable"),
+    ):
+        refresh(MockProvider(), tmp_path, NOW)
     assert json.loads((tmp_path / "status.json").read_text())["status"] == "error"
     with pytest.raises(DataError, match="Last refresh failed"):
         load_snapshot(tmp_path, NOW)
 
 
 def test_partial_refresh_does_not_publish_snapshot(tmp_path):
-    with patch.object(MockProvider, "daily", side_effect=[
-        mock_bars(UNIVERSE["S63"], completed_sessions(UNIVERSE["S63"], (NOW - pd.Timedelta(days=550)).date(), NOW)),
-        DataError("D05 unavailable"),
-    ]):
-        with pytest.raises(DataError, match="D05 unavailable"):
-            refresh(MockProvider(), tmp_path, NOW)
+    with (
+        patch.object(MockProvider, "daily", side_effect=[
+            mock_bars(UNIVERSE["S63"], completed_sessions(UNIVERSE["S63"], (NOW - pd.Timedelta(days=550)).date(), NOW)),
+            DataError("D05 unavailable"),
+        ]),
+        pytest.raises(DataError, match="D05 unavailable"),
+    ):
+        refresh(MockProvider(), tmp_path, NOW)
     assert not (tmp_path / "snapshots").exists()
 
 
@@ -162,9 +166,11 @@ def test_missing_or_corrupt_storage_is_clear_error(tmp_path):
 
 
 def test_yahoo_failure_has_no_price_fallback():
-    with patch("equity_research.providers.yf.Ticker", side_effect=RuntimeError("offline")):
-        with pytest.raises(DataError, match="request failed"):
-            YahooFinanceProvider().daily(UNIVERSE["S63"], date(2025, 1, 1), date(2025, 2, 1))
+    with (
+        patch("equity_research.providers.yf.Ticker", side_effect=RuntimeError("offline")),
+        pytest.raises(DataError, match="request failed"),
+    ):
+        YahooFinanceProvider().daily(UNIVERSE["S63"], date(2025, 1, 1), date(2025, 2, 1))
 
 
 def test_yahoo_rejects_empty_response():
